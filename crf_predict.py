@@ -10,12 +10,10 @@ from transformers import T5Tokenizer
 from typing import NamedTuple
 
 
-CRF_MODEL_PATH = '/mnt/8t/jy/HyperGAT_TextClassification-main/HyperGAT_TextClassification-main/Bert-BiLSTM-CRF-pytorch/precision:0.8473289966489257,recall:0.8473289966489257,f1:0.8473289966489257.pt'
-BERT_PATH = '/mnt/8t/jy/HyperGAT_TextClassification-main/HyperGAT_TextClassification-main/Bert-BiLSTM-CRF-pytorch/Rostlab/prot_t5_xl_uniref50'
-
 #
-# CRF_MODEL_PATH = './model/T5-BiLSTM-CRF/precision:0.8473289966489257,recall:0.8473289966489257,f1:0.8473289966489257.pt'
-# BERT_PATH = './model/ProtT5'
+CRF_MODEL_PATH = './model/T5-BiLSTM-CRF/precision:0.8473289966489257,recall:0.8473289966489257,f1:0.8473289966489257.pt'
+BERT_PATH = './model/ProtT5'
+
 class CRF(object):
     def __init__(self, crf_model, bert_model):
         self.device = torch.device('cpu')
