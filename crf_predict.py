@@ -9,10 +9,10 @@ from crf import Bert_BiLSTM_CRF
 from transformers import T5Tokenizer
 from typing import NamedTuple
 
-
 #
 CRF_MODEL_PATH = './model/T5-BiLSTM-CRF/precision:0.8473289966489257,recall:0.8473289966489257,f1:0.8473289966489257.pt'
 BERT_PATH = './model/ProtT5'
+
 
 class CRF(object):
     def __init__(self, crf_model, bert_model):
@@ -52,9 +52,16 @@ def get_crf_and_graph_model(text, crf):
     return pred_tags[1:-1]
 
 
+def predict_pipeline(sequence_list):
+    result_list = []
+    for value in text:
+        current_result = get_crf_and_graph_model(value, model)
+        result_list.append(current_result)
+        print(current_result)
+
+
 if __name__ == "__main__":
     model = CRF(CRF_MODEL_PATH, BERT_PATH)
-    text = ['S S S S', 'S S S S', 'S S S S', 'S S S S', 'S S S S', 'S S S S', 'S S S S', 'S S S S', 'S S S S',
-            'S S S S']
+    text = ['S S S S']
     for value in text:
         print(get_crf_and_graph_model(value, model))

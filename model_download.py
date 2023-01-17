@@ -18,3 +18,6 @@ if __name__ == '__main__':
     model_graph_list = os.listdir(CRF_MODEL_PATH)
     if "precision:0.8473289966489257,recall:0.8473289966489257,f1:0.8473289966489257.pt" not in model_graph_list:
         os.system("wget https://inner.wei-group.net/result/precision:0.8473289966489257,recall:0.8473289966489257,f1:0.8473289966489257.pt -O ./model/T5-BiLSTM-CRF/precision:0.8473289966489257,recall:0.8473289966489257,f1:0.8473289966489257.pt")
+
+    if "precision:0.7947336923997607,recall:0.7947336923997607,f1:0.7947336923997607.8.pt" not in model_graph_list:
+        os.system("wget https://inner.wei-group.net/result/precision:0.7947336923997607,recall:0.7947336923997607,f1:0.7947336923997607.8.pt -O ./model/T5-BiLSTM-CRF/precision:0.7947336923997607,recall:0.7947336923997607,f1:0.7947336923997607.8.pt")
