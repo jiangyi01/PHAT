@@ -11,7 +11,7 @@ from typing import NamedTuple
 
 
 CRF_MODEL_PATH = '/mnt/8t/jy/HyperGAT_TextClassification-main/HyperGAT_TextClassification-main/Bert-BiLSTM-CRF-pytorch/precision:0.7947336923997607,recall:0.7947336923997607,f1:0.7947336923997607.8.pt'
-BERT_PATH = './model/ProtT5'
+BERT_PATH = '/mnt/8t/jy/HyperGAT_TextClassification-main/HyperGAT_TextClassification-main/Bert-BiLSTM-CRF-pytorch/Rostlab/prot_t5_xl_uniref50'
 
 
 class CRF_8(object):
