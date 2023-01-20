@@ -1,15 +1,12 @@
 # -*- encoding: utf-8 -*-
 
-import math
-
-import numpy
 import torch
 import torch.nn as nn
 from transformers import T5Model
 
 import torch.nn.functional as F
-from HyperGAT import HGNN_ATT
-from HyperUtils import Data, get_KMer_change, get_dict_HyerNodes, get_node_to_sentence_embedding
+from HyperGMA.HyperGAT import HGNN_ATT
+from HyperGMA.HyperUtils import Data, get_KMer_change, get_dict_HyerNodes, get_node_to_sentence_embedding
 
 
 def trans_to_cuda(variable):
