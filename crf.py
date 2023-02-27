@@ -40,9 +40,6 @@ class Bert_BiLSTM_CRF(nn.Module):
         # self.hidden = self.init_hidden()
         self.lstm = nn.LSTM(bidirectional=True, num_layers=2, input_size=1024, hidden_size=hidden_dim // 2,
                             batch_first=True)
-        # self.transitions = nn.Parameter(torch.randn(
-        #     self.tagset_size, self.tagset_size
-        # ))
         self.hidden_dim = hidden_dim
         self.start_label_id = self.tag_to_ix['[CLS]']
         self.end_label_id = self.tag_to_ix['[SEP]']
@@ -79,12 +76,8 @@ class Bert_BiLSTM_CRF(nn.Module):
 
         # alpha_recursion,forward, alpha(zt)=p(zt,bar_x_1:t)
         log_alpha = torch.Tensor(batch_size, 1, self.tagset_size).fill_(-10000.).to(self.device)  # [batch_size, 1, 16]
-        # normal_alpha_0 : alpha[0]=Ot[0]*self.PIs
-        # self.start_label has all of the score. it is log,0 is p=1
         log_alpha[:, 0, self.start_label_id] = 0
 
-        # feats: sentances -> word embedding -> lstm -> MLP -> feats
-        # feats is the probability of emission, feat.shape=(1,tag_size)
         for t in range(1, T):
             log_alpha = (log_sum_exp_batch(lstm_transitions_feats[:, t] + log_alpha, axis=-1) + feats[:, t]).unsqueeze(
                 1)
@@ -101,8 +94,6 @@ class Bert_BiLSTM_CRF(nn.Module):
         lstm_transitions_feats_size = lstm_transitions_feats.shape[1]
         batch_transitions = lstm_transitions_feats.view(batch_size, lstm_transitions_feats_size,
                                                         self.tagset_size * self.tagset_size)
-        # batch_transitions = self.transitions.expand(batch_size, self.tagset_size, self.tagset_size)
-        # batch_transitions = batch_transitions.flatten(1)
         print("batch_transitions:", batch_transitions.size())
 
         score = torch.zeros((feats.shape[0], 1)).to(self.device)

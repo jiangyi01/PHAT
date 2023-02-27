@@ -55,10 +55,6 @@ class Data():
                     cols.append(s)
                     vals.append(1.0)
 
-            # if len(cols) == 0:
-            #     s = 0
-            # else:
-            #     s = max(cols) + 1
 
             u_H = sp.coo_matrix((vals, (rows, cols)), shape=(max_n_node, max_n_edge))
             HT.append(np.asarray(u_H.T.todense()))
@@ -88,8 +84,6 @@ def get_KMer_change(k, sent_copy, sentence_k, sentence_stride):
                     merge_mer = [merge_set[j] * 100 + merge_set[j + 1] for j in range(len(merge_set)) if
                                  j < len(merge_set) - 1]
                     merge_sen_mer_current.append(merge_mer)
-                    # print()
-                    # sen_current.append(sent_copy[index][i * cov:(i + 1) * cov])
 
                 else:
                     merge_set = sent_copy[index][i * stride:]
@@ -97,7 +91,6 @@ def get_KMer_change(k, sent_copy, sentence_k, sentence_stride):
                                  j < len(merge_set) - 1]
                     merge_sen_mer_current.append(merge_mer)
 
-                    # sen_current.append(sent_copy[index][i * cov:])
 
             merge_sen_mer.append(merge_sen_mer_current)
         return merge_sen_mer
@@ -106,25 +99,18 @@ def get_KMer_change(k, sent_copy, sentence_k, sentence_stride):
             sent_length = len(sent_copy[0])
             index_length = math.ceil((sent_length -cov)/ stride) + 1
             sen_current = []
-            # merge_sen_mer_current = []
             for i in range(index_length):
                 if i < index_length - 1:
                     merge_set = sent_copy[index][i * stride:i * stride + cov]
-                    # merge_mer = [merge_set[j] * 100 + merge_set[j + 1] for j in range(len(merge_set)) if
-                    #              j < len(merge_set) - 1]
-                    # merge_sen_mer_current.append(merge_mer)
                     sen_current.append(merge_set)
 
                 else:
                     merge_set = sent_copy[index][i * stride:]
-                    # merge_mer = [merge_set[j] * 100 + merge_set[j + 1] for j in range(len(merge_set)) if
-                    #              j < len(merge_set) - 1]
-                    # merge_sen_mer_current.append(merge_mer)
+
 
                     sen_current.append(merge_set)
 
             sent.append(sen_current)
-            # merge_sen_mer.append(merge_sen_mer_current)
         return sent
 
 

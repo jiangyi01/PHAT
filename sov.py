@@ -89,15 +89,5 @@ def sov_calculation(observed, prediction):
         s_list_not_all_type.append(sum(Ni) + sum(s_list_not_type))
 
         sov_sum.append(sum(si_sum))
-        # if sum(Ni) != 0:
-        #     if type==0:
-        #         print("SOV(H):",100 * sum(si_sum) / (sum(Ni) + sum(s_list_not_type)))
-        #         print("ACC(H):", 100 * sum(min_num) / sum(max_num))
-        #     elif type==1:
-        #         print("SOV(C):",100 * sum(si_sum) / (sum(Ni) + sum(s_list_not_type)))
-        #         print("ACC(C):", 100 * sum(min_num) / sum(max_num))
-        #     else:
-        #         print("SOV(E):",100 * sum(si_sum) / (sum(Ni) + sum(s_list_not_type)))
-        #         print("ACC(E):", 100 * sum(min_num) / sum(max_num))
     print("SOV:",100 * sum(sov_sum) / sum(s_list_not_all_type))
     return 100 * sum(sov_sum) / sum(s_list_not_all_type)

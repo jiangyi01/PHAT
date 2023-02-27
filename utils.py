@@ -10,12 +10,8 @@ from transformers import T5Tokenizer, T5Model
 
 logger = logging.getLogger(__name__)
 
-bert_model = '/mnt/8t/jy/HyperGAT_TextClassification-main/HyperGAT_TextClassification-main/Bert-BiLSTM-CRF-pytorch/Rostlab/prot_t5_xl_uniref50'
-# bert_model = '/home/disk1/jy/Rostlab/prot_t5_xl_uniref50'
+bert_model = './model/ProtT5/'
 tokenizer = T5Tokenizer.from_pretrained(bert_model, do_lower_case=False)
-# VOCAB = ('<PAD>', 'O', 'I-LOC', 'B-PER', 'I-PER', 'I-ORG', 'B-LOC', 'B-ORG')
-# VOCAB = ('<PAD>', '[CLS]', '[SEP]', 'O', 'B-INF', 'I-INF', 'B-PAT', 'I-PAT', 'B-OPS',
-#         'I-OPS', 'B-DSE', 'I-DSE', 'B-DRG', 'I-DRG', 'B-LAB', 'I-LAB')
 VOCAB=('<PAD>', '[CLS]', '[SEP]', 'H', 'C', 'E')
 tag2idx = {tag: idx for idx, tag in enumerate(VOCAB)}
 idx2tag = {idx: tag for idx, tag in enumerate(VOCAB)}

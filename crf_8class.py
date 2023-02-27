@@ -71,43 +71,8 @@ class Bert_BiLSTM_CRF(nn.Module):
         # 加入超图网络
         self.hgnn_1 = HGNN_ATT(input_size=1024, output_size=1024, n_hid=hidden_dim, dropout=0.5)
 
-        # self.hgnn_2 = HGNN_ATT(input_size=1024, output_size=1024, n_hid=hidden_dim, dropout=0.3)
-        #
-        # self.hgnn_3 = HGNN_ATT(input_size=1024, output_size=1024, n_hid=hidden_dim, dropout=0.3)
-
-        # self.Ws = nn.parameter.Parameter(torch.randn(1, 1).cuda())
-
-        # self.Wh = nn.parameter.Parameter(torch.randn(1, 1).cuda())
-        # self.Wm = nn.parameter.Parameter(torch.randn(1, 1).cuda())
-        #
-        # self.Wst = nn.parameter.Parameter(torch.randn(1, 1).cuda())
-        #
-        # self.Wht = nn.parameter.Parameter(torch.randn(1, 1).cuda())
-
-        # self.Wend=torch.randn(1,6).cuda()
-        # self.Wend.requires_grad=True
-        # self.end_embeds_linear1 = nn.Linear(6, 1)
-        # self.end_embeds_linear2 = nn.Linear(512, 256)
-        # self.end_embeds_linear3 = nn.Linear(256, 1)
-
-        # self.Ws_2 = torch.randn(1, 1024,requires_grad=True).cuda()
-        # self.Wh_2 = torch.randn(1, 1024,requires_grad=True).cuda()
-        # torch.randn(1, 1024, requires_grad=True)
-        # torch.randn(1, 1024, requires_grad=True)
-        # self.layer1 = torch.nn.Linear(2048, 1024)
-        # self.layer2 = torch.nn.Linear(1024, 1024)
-        # self.hyperEmbedding = nn.parameter.Parameter(torch.rand(30, 1024).cuda())
-        # self.hyperEmbedding = nn.Embedding(30, 1024, padding_idx=0)
         self.hyperEmbedding_mer = nn.Embedding(3030, 1024, padding_idx=0)
-        # self.hyperEmbedding_mer = nn.parameter.Parameter(torch.rand(3030, 1024).cuda())
-
-        # self.lstm_position_Embedding = nn.parameter.Parameter(torch.rand(200, 1024).cuda())
-        # self.lstm_an_Embedding = nn.parameter.Parameter(torch.rand(30, 1024).cuda())
-        # --------------------------------------------------------
-        # self.transitions.data[self.start_label_id, :] = -10000
-        # self.transitions.data[:, self.end_label_id] = -10000
         self.device = torch.device('cpu')
-        # self.transitions.to(self.device)
 
     def init_hidden(self):
         return (torch.randn(2, 1, self.hidden_dim // 2),
@@ -118,18 +83,12 @@ class Bert_BiLSTM_CRF(nn.Module):
         this also called alpha-recursion or forward recursion, to calculate log_prob of all barX
         '''
 
-        # T = self.max_seq_length
         T = feats.shape[1]
         batch_size = feats.shape[0]
 
-        # alpha_recursion,forward, alpha(zt)=p(zt,bar_x_1:t)
         log_alpha = torch.Tensor(batch_size, 1, self.tagset_size).fill_(-10000.).to(self.device)  # [batch_size, 1, 16]
-        # normal_alpha_0 : alpha[0]=Ot[0]*self.PIs
-        # self.start_label has all of the score. it is log,0 is p=1
         log_alpha[:, 0, self.start_label_id] = 0
 
-        # feats: sentances -> word embedding -> lstm -> MLP -> feats
-        # feats is the probability of emission, feat.shape=(1,tag_size)
         for t in range(1, T):
             log_alpha = (log_sum_exp_batch(lstm_transitions_feats[:, t] + log_alpha, axis=-1) + feats[:, t]).unsqueeze(
                 1)
@@ -146,12 +105,9 @@ class Bert_BiLSTM_CRF(nn.Module):
         lstm_transitions_feats_size = lstm_transitions_feats.shape[1]
         batch_transitions = lstm_transitions_feats.view(batch_size, lstm_transitions_feats_size,
                                                         self.tagset_size * self.tagset_size)
-        # batch_transitions = self.transitions.expand(batch_size, self.tagset_size, self.tagset_size)
-        # batch_transitions = batch_transitions.flatten(1)
         print("batch_transitions:", batch_transitions.size())
 
         score = torch.zeros((feats.shape[0], 1)).to(self.device)
-        # the 0th node is start_label->start_word,the probability of them=1. so t begin with 1.
         for t in range(1, T):
             score = score + \
                     batch_transitions[:, t].gather(-1,
@@ -188,19 +144,13 @@ class Bert_BiLSTM_CRF(nn.Module):
         T = feats.shape[1]
         batch_size = feats.shape[0]
 
-        # batch_transitions=self.transitions.expand(batch_size,self.tagset_size,self.tagset_size)
 
         log_delta = torch.Tensor(batch_size, 1, self.tagset_size).fill_(-10000.).to(self.device)
         log_delta[:, 0, self.start_label_id] = 0.
 
-        # psi is for the vaule of the last latent that make P(this_latent) maximum.
         psi = torch.zeros((batch_size, T, self.tagset_size), dtype=torch.long)  # psi[0]=0000 useless
         for t in range(1, T):
-            # delta[t][k]=max_z1:t-1( p(x1,x2,...,xt,z1,z2,...,zt-1,zt=k|theta) )
-            # delta[t] is the max prob of the path from  z_t-1 to z_t[k]
             log_delta, psi[:, t] = torch.max(lstm_transitions_feats[:, t] + log_delta, -1)
-            # psi[t][k]=argmax_z1:t-1( p(x1,x2,...,xt,z1,z2,...,zt-1,zt=k|theta) )
-            # psi[t][k] is the path choosed from z_t-1 to z_t[k],the value is the z_state(is k) index of z_t-1
             log_delta = (log_delta + feats[:, t]).unsqueeze(1)
 
         # trace back
@@ -215,34 +165,6 @@ class Bert_BiLSTM_CRF(nn.Module):
 
         return max_logLL_allz_allx, path
 
-        # print("feats:",feats.size())
-        # print("feats:",feats[1][:])
-        # feats=self.endLstm(feats)
-        # feats = torch.softmax(feats, dim=2)
-        # f_end = self.fc_end(feats[0])
-        # f_end = lambda i: self.fc_end(feats[i])
-
-        # f_end=self.fc_end(feats)
-        # print("f_end:",f_end.size())
-        # f_end=f_end.view(20,f_end.size()[1])
-        # print(f_end.size())
-
-        # print("tags:",tags.size())
-        # for value in feats:
-        #     for val in value:
-        #         for i in range(len(val)):
-        #             if
-        # feats =self.Wend*feats
-        # loss=0
-        # for index in range(len(feats)):
-        #     loss+=criterion(feats[index], tags[index])
-
-        #
-        # def _randomInit(self, sentence):
-        #     # torch.randn()
-        #
-        #     random_tensor = torch.ones(len(sentence), len(sentence[0]), 1024)
-        #     return random_tensor
 
     def _get_Hyper_features(self, sent_copy, k, sentence_k, sentence_stride, hgnn):
         merge_sen_mer = get_KMer_change(k, sent_copy, sentence_k, sentence_stride)
@@ -264,23 +186,11 @@ class Bert_BiLSTM_CRF(nn.Module):
         embeds = self._bert_enc(sentence)
         enb_multy = sentence_Hyper_embeds * embeds
         enc, _ = self.lstm(enb_multy)
-        # lstm_transitions_feats = self.fc_transitions_hidden_1(enc)
-        # lstm_transitions_feats = torch.sigmoid(lstm_transitions_feats)
-        # lstm_transitions_feats = self.fc_transitions_hidden_2(lstm_transitions_feats)
-        # lstm_transitions_feats = torch.sigmoid(lstm_transitions_feats)
-        # lstm_transitions_feats = self.fc_transitions_hidden_3(lstm_transitions_feats)
-        # lstm_transitions_feats = torch.sigmoid(lstm_transitions_feats)
         lstm_transitions_feats = self.fc_transitions_out(enc)
         lstm_transitions_feats_out = lstm_transitions_feats.view(enc.size()[0], enc.size()[1],
                                                                  self.tagset_size, self.tagset_size)
         lstm_transitions_feats_cat = torch.sigmoid(lstm_transitions_feats)
         lstm_transitions_feats_cat = self.fc_transitions_cat(lstm_transitions_feats_cat)
-        # lstm_feats = self.fc_hidden_1(enc)
-        # lstm_feats = torch.sigmoid(lstm_feats)
-        # lstm_feats = self.fc_hidden_2(lstm_feats)
-        # lstm_feats = torch.sigmoid(lstm_feats)
-        # lstm_feats = self.fc_hidden_3(lstm_feats)
-        # lstm_feats = torch.sigmoid(lstm_feats)
         lstm_feats = self.fc_out(enc)
         lstm_feats = torch.sigmoid(lstm_feats)
         F.dropout(lstm_feats, 0.3)
@@ -296,29 +206,11 @@ class Bert_BiLSTM_CRF(nn.Module):
         score, tag_seq = self._viterbi_decode(lstm_feats, lstm_transitions_feats)
         return score, tag_seq
 
-        # lstm_feats = self._get_lstm_HyperGAT_features(sentence, y)  # [8, 180,768]
-        # lstm_feats_shape = lstm_feats.shape
-        # predict_label = torch.zeros([lstm_feats_shape[0], lstm_feats_shape[1]])
-        # for index in range(lstm_feats_shape[0]):
-        #     for i in range(lstm_feats_shape[1]):
-        #         predict_label[index][i] = torch.argmax(lstm_feats[index][i])
-        # return "", predict_label
-
     def neg_log_likelihood(self, sentence, tags, criterion):
         lstm_feats, lstm_transitions_feats = self._get_lstm_HyperGAT_features(sentence,
                                                                               tags)  # [batch_size, max_len, 16]
         forward_score = self._forward_alg(lstm_feats, lstm_transitions_feats)
         gold_score = self._score_sentence(lstm_feats, tags, lstm_transitions_feats)
-        # lstm_feats_shape = lstm_feats.shape
-        # predict_label = torch.zeros([lstm_feats_shape[0], lstm_feats_shape[1]])
-        # for index in range(lstm_feats_shape[0]):
-        #     for i in range(lstm_feats_shape[1]):
-        #         predict_label[index][i] = lstm_feats[index][i][tags[index][i]]
-        # target = tags.view(-1, 1).long()
-        # target = target.squeeze()
-        # input = lstm_feats.view(-1, 6).float()
-
-        # loss_value = criterion(input=input, target=target)
 
         return torch.mean(forward_score - gold_score)
 
